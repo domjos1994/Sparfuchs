@@ -1,6 +1,5 @@
-# New in Version 0.2
+# New in Version 0.1
 <ul>
-    <li>Change Database</li>
-    <li>Delete Database</li>
-    <li>Solve smaller Bugs</li>
+    <li>Add Persons</li>
+    <li>Add Accounts</li>
 </ul>
