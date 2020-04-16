@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.image.Image?>
+
+<AnchorPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="de.domjos.sparfuchs.controller.AccountController"
+            prefHeight="400.0" prefWidth="600.0">
+
+    <ToolBar layoutX="235.0" layoutY="91.0" prefHeight="40.0" prefWidth="200.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+        <items>
+            <Button fx:id="cmdAccountAdd" mnemonicParsing="false">
+                <graphic>
+                    <ImageView fitHeight="16" fitWidth="16">
+                        <Image url="@../images/add.png" />
+                    </ImageView>
+                </graphic>
+            </Button>
+            <Button fx:id="cmdAccountRemove" mnemonicParsing="false">
+                <graphic>
+                    <ImageView fitHeight="16" fitWidth="16">
+                        <image>
+                            <Image url="@../images/remove.png" />
+                        </image>
+                    </ImageView>
+                </graphic>
+            </Button>
+            <HBox HBox.hgrow="ALWAYS" />
+            <Button fx:id="cmdAccountSave" mnemonicParsing="false">
+                <graphic>
+                    <ImageView fitHeight="16" fitWidth="16">
+                        <image>
+                            <Image url="@../images/save.png" />
+                        </image>
+                    </ImageView>
+                </graphic>
+            </Button>
+        </items>
+    </ToolBar>
+
+    <TextField fx:id="txtAccountTitle" promptText="%accounts.title" AnchorPane.leftAnchor="5.0" AnchorPane.rightAnchor="5.0" AnchorPane.topAnchor="45" />
+    <TextField fx:id="txtAccountStart" promptText="%accounts.start" AnchorPane.leftAnchor="5.0" AnchorPane.rightAnchor="5.0" AnchorPane.topAnchor="75" />
+    <CheckBox fx:id="chkAccountCash" text="%accounts.cash" AnchorPane.leftAnchor="5.0" AnchorPane.rightAnchor="5.0" AnchorPane.topAnchor="105" />
+    <TitledPane AnchorPane.leftAnchor="5.0" AnchorPane.rightAnchor="5.0" AnchorPane.topAnchor="135" AnchorPane.bottomAnchor="205.0" text="%bankDetail">
+        <AnchorPane>
+            <TextField fx:id="txtAccountBankDetailBic" promptText="BIC" AnchorPane.leftAnchor="5.0" AnchorPane.rightAnchor="5.0" AnchorPane.topAnchor="5"/>
+            <TextField fx:id="txtAccountBankDetailIBan" promptText="IBAN" AnchorPane.leftAnchor="5.0" AnchorPane.rightAnchor="5.0" AnchorPane.topAnchor="35"/>
+        </AnchorPane>
+    </TitledPane>
+    <TextArea fx:id="txtAccountDescription" promptText="%description" AnchorPane.leftAnchor="5.0" AnchorPane.rightAnchor="5.0" AnchorPane.bottomAnchor="5.0" prefHeight="195.0" maxHeight="195.0" minHeight="195.0"/>
+</AnchorPane>

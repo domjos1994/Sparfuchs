@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.layout.AnchorPane?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.control.ToolBar?>
+<AnchorPane prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.domjos.sparfuchs.controller.TransactionController">
+   <children>
+      <ToolBar layoutX="235.0" layoutY="91.0" prefHeight="40.0" prefWidth="200.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+         <items>
+            <Button fx:id="cmdTransactionAdd" mnemonicParsing="false">
+               <graphic>
+                  <ImageView fitHeight="16" fitWidth="16">
+                     <Image url="@../images/add.png" />
+                  </ImageView>
+               </graphic>
+            </Button>
+            <Button fx:id="cmdTransactionRemove" mnemonicParsing="false">
+               <graphic>
+                  <ImageView fitHeight="16" fitWidth="16">
+                     <image>
+                        <Image url="@../images/remove.png" />
+                     </image>
+                  </ImageView>
+               </graphic>
+            </Button>
+            <HBox HBox.hgrow="ALWAYS" />
+            <Button fx:id="cmdTransactionSave" mnemonicParsing="false">
+               <graphic>
+                  <ImageView fitHeight="16" fitWidth="16">
+                     <image>
+                        <Image url="@../images/save.png" />
+                     </image>
+                  </ImageView>
+               </graphic>
+            </Button>
+         </items>
+      </ToolBar>
+      <TableView fx:id="tblTransactions" editable="true" layoutX="50.0" layoutY="-18.0" prefHeight="200.0" prefWidth="200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="40.0" />
+   </children>
+</AnchorPane>

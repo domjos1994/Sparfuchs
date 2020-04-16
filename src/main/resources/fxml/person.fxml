@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.DatePicker?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.ToolBar?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.AnchorPane?>
+
+<?import javafx.scene.layout.HBox?>
+<AnchorPane prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.domjos.sparfuchs.controller.PersonController">
+   <children>
+      <ToolBar layoutX="235.0" layoutY="91.0" prefHeight="40.0" prefWidth="200.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+        <items>
+          <Button fx:id="cmdPersonAdd" mnemonicParsing="false">
+              <graphic>
+                  <ImageView fitHeight="16" fitWidth="16">
+                      <Image url="@../images/add.png" />
+                  </ImageView>
+              </graphic>
+          </Button>
+            <Button fx:id="cmdPersonRemove" mnemonicParsing="false">
+               <graphic>
+                  <ImageView fitHeight="16" fitWidth="16">
+                     <image>
+                        <Image url="@../images/remove.png" />
+                     </image>
+                  </ImageView>
+               </graphic>
+            </Button>
+            <HBox HBox.hgrow="ALWAYS" />
+            <Button fx:id="cmdPersonSave" mnemonicParsing="false">
+               <graphic>
+                  <ImageView fitHeight="16" fitWidth="16">
+                     <image>
+                        <Image url="@../images/save.png" />
+                     </image>
+                  </ImageView>
+               </graphic>
+            </Button>
+        </items>
+      </ToolBar>
+
+       <TextField fx:id="txtPersonFirstName" AnchorPane.leftAnchor="5" AnchorPane.rightAnchor="210.0" AnchorPane.topAnchor="45" />
+       <TextField fx:id="txtPersonLastName" AnchorPane.leftAnchor="5" AnchorPane.rightAnchor="210.0" AnchorPane.topAnchor="75" />
+       <DatePicker fx:id="dpPersonBirthDate" AnchorPane.leftAnchor="5" AnchorPane.rightAnchor="210.0" AnchorPane.topAnchor="105" />
+      <ImageView fx:id="ivPersonImage" fitHeight="150.0" fitWidth="200.0" layoutX="263.0" layoutY="200.0" pickOnBounds="true" preserveRatio="true" AnchorPane.rightAnchor="5.0" AnchorPane.topAnchor="45.0" />
+      <Button fx:id="cmdPersonImageLoad" layoutX="424.0" layoutY="263.0" minWidth="200.0" mnemonicParsing="false" text="..." AnchorPane.rightAnchor="5.0" AnchorPane.topAnchor="200.0" />
+   </children>
+</AnchorPane>
