@@ -10,7 +10,7 @@ public class AccountTest {
 
     @BeforeEach
     public void init() {
-        this.account = new Account();
+        account = new Account();
         account.startAmount.setValue(0.0);
     }
 

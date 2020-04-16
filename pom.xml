@@ -181,6 +181,11 @@
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>3.0.0-M4</version>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
                 <version>3.2.0</version>
                 <configuration>
@@ -214,39 +219,8 @@
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-antrun-plugin</artifactId>
-                <version>1.6</version>
-                <executions>
-                    <execution>
-                        <id>BuildSetup-Windows</id>
-                        <phase>package</phase>
-                        <configuration>
-                            <target>
-                                <exec dir="${project.basedir}/src/main/resources/setup/" executable="${project.basedir}/src/main/resources/setup/createSetup_win.bat"  failonerror="false"/>
-                            </target>
-                        </configuration>
-                        <goals>
-                            <goal>run</goal>
-                        </goals>
-                    </execution>
-                    <!--<execution>
-                        <id>BuildSetup-Linux</id>
-                        <phase>package</phase>
-                        <configuration>
-                            <target>
-                                <exec dir="${project.basedir}/src/main/resources/setup/" executable="${project.basedir}/src/main/resources/setup/createSetup_linux.sh"  failonerror="false"/>
-                            </target>
-                        </configuration>
-                        <goals>
-                            <goal>run</goal>
-                        </goals>
-                    </execution>-->
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-assembly-plugin</artifactId>
-                <version>2.6</version>
+                <version>3.2.0</version>
                 <executions>
                     <execution>
                         <id>Zip</id>
@@ -261,7 +235,7 @@
                             </descriptors>
                             <archive>
                                 <manifest>
-                                    <mainClass>${project.mainClass}</mainClass>
+                                    <mainClass>de.domjos.photo_manager.PhotoManager</mainClass>
                                 </manifest>
                             </archive>
                             <workDirectory>${application.out}</workDirectory>
