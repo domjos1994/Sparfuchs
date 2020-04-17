@@ -46,6 +46,13 @@
          </items>
       </ToolBar>
       <ToolBar styleClass="darkSlateGray" layoutX="116.0" layoutY="154.0" maxHeight="30.0" minHeight="30.0" prefHeight="30.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="25.0">
+          <Button fx:id="cmdMainRefresh" mnemonicParsing="false">
+              <graphic>
+                  <ImageView fitHeight="16.0" fitWidth="16.0" pickOnBounds="true" preserveRatio="true">
+                      <Image url="@../images/refresh.png" />
+                  </ImageView>
+              </graphic>
+          </Button>
           <Button fx:id="cmdMainTransaction" mnemonicParsing="false">
               <graphic>
                   <ImageView fitHeight="16.0" fitWidth="16.0" pickOnBounds="true" preserveRatio="true">
@@ -64,6 +71,13 @@
               <graphic>
                   <ImageView fitHeight="16.0" fitWidth="16.0" pickOnBounds="true" preserveRatio="true">
                       <Image url="@../images/person.png" />
+                  </ImageView>
+              </graphic>
+          </Button>
+          <Button fx:id="cmdMainTags" mnemonicParsing="false">
+              <graphic>
+                  <ImageView fitHeight="16.0" fitWidth="16.0" pickOnBounds="true" preserveRatio="true">
+                      <Image url="@../images/tags.png" />
                   </ImageView>
               </graphic>
           </Button>
@@ -109,6 +123,9 @@
                       </Tab>
                       <Tab fx:id="tbMainTransactions">
                           <fx:include source="transaction.fxml" fx:id="transaction"/>
+                      </Tab>
+                      <Tab fx:id="tbMainTags">
+                          <fx:include source="tags.fxml" fx:id="tags"/>
                       </Tab>
                   </TabPane>
                </children>

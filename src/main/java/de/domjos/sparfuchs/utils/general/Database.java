@@ -2,6 +2,7 @@ package de.domjos.sparfuchs.utils.general;
 
 import de.domjos.sparfuchs.model.account.Account;
 import de.domjos.sparfuchs.model.account.BankDetail;
+import de.domjos.sparfuchs.model.account.StandingOrder;
 import de.domjos.sparfuchs.model.account.Transaction;
 import de.domjos.sparfuchs.model.general.Category;
 import de.domjos.sparfuchs.model.general.DatabaseObject;
@@ -15,14 +16,13 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileReader;
 import java.sql.*;
-import java.time.ZoneId;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
 public final class Database {
-    private Connection connection;
+    private final Connection connection;
     private Statement statement;
 
     public Database() throws Exception {
@@ -70,6 +70,10 @@ public final class Database {
     }
 
     public int insertOrUpdateTag(Tag tag) throws Exception {
+        List<Tag> tags = this.getTags("title='" + tag.title.get() + "'");
+        if(!tags.isEmpty()) {
+            tag.ID.set(tags.get(0).ID.get());
+        }
         PreparedStatement preparedStatement = this.getPreparedStatement(Collections.singletonList("title"), tag);
         preparedStatement.setString(1, tag.title.get());
         return this.execute(preparedStatement, tag);
@@ -188,6 +192,7 @@ public final class Database {
                 account.bankDetail.set(this.getBankDetails("ID=" + bankDetail).get(0));
             }
             account.transactions.addAll(this.getTransactions("account=" + account.ID.get()));
+            account.standingOrders.addAll(this.getStandingOrders("account=" + account.ID.get()));
             accounts.add(account);
         }
         this.closeStatement(resultSet);
@@ -195,16 +200,17 @@ public final class Database {
     }
 
     public int insertOrUpdateTransaction(Transaction transaction, Account account) throws Exception {
-        PreparedStatement preparedStatement = this.getPreparedStatement(Arrays.asList("title", "description", "value", "bankDetail", "account"), transaction);
+        PreparedStatement preparedStatement = this.getPreparedStatement(Arrays.asList("title", "description", "value", "date", "system", "category", "bankDetail", "account"), transaction);
         preparedStatement.setString(1, transaction.title.get());
         preparedStatement.setString(2, transaction.description.get());
         preparedStatement.setDouble(3, transaction.amount.get());
-        if(transaction.bankDetail.get()!=null) {
-            preparedStatement.setInt(4, this.insertOrUpdateBankDetails(transaction.bankDetail.get()));
+        if(transaction.date.get()!=null) {
+            preparedStatement.setString(4, Converter.convertDateToString(transaction.date.get()));
         } else {
-            preparedStatement.setNull(4, Types.INTEGER);
+            preparedStatement.setNull(4, Types.DATE);
         }
-        preparedStatement.setInt(5, account.ID.get());
+        preparedStatement.setBoolean(5, transaction.system.get());
+        this.setForeignFields(preparedStatement, transaction.category.get(), transaction.bankDetail.get(), account);
         return this.execute(preparedStatement, transaction);
     }
 
@@ -217,18 +223,130 @@ public final class Database {
             transaction.title.set(resultSet.getString("title"));
             transaction.description.set(resultSet.getString("description"));
             transaction.amount.set(resultSet.getDouble("value"));
-            int bankDetail = resultSet.getInt("bankDetail");
-            if(bankDetail!=0) {
-                transaction.bankDetail.set(this.getBankDetails("ID=" + bankDetail).get(0));
+            String dt = resultSet.getString("date").trim();
+            if(!dt.isEmpty()) {
+                transaction.date.set(Converter.convertStringToDate(dt));
             }
+            transaction.system.set(resultSet.getBoolean("system"));
+            this.getForeignFields(transaction, resultSet);
             transactions.add(transaction);
         }
         this.closeStatement(resultSet);
         return transactions;
     }
 
+    public void insertOrUpdateStandingOrder(StandingOrder standingOrder, Account account) throws Exception {
+        PreparedStatement preparedStatement = this.getPreparedStatement(Arrays.asList("title", "start", "days", "months", "amount", "category", "bankDetail", "account"), standingOrder);
+        preparedStatement.setString(1, standingOrder.title.get());
+        if(standingOrder.start.get() != null) {
+            preparedStatement.setString(2, Converter.convertDateToString(standingOrder.start.get()));
+        } else {
+            preparedStatement.setNull(2, Types.DATE);
+        }
+        preparedStatement.setInt(3, standingOrder.days.get());
+        preparedStatement.setInt(4, standingOrder.months.get());
+        preparedStatement.setDouble(5, standingOrder.amount.get());
+        this.setForeignFields(preparedStatement, standingOrder.category.get(), standingOrder.bankDetail.get(), account);
+        int id = this.execute(preparedStatement, standingOrder);
+        this.setTags(id, standingOrder);
+    }
+
+    private void setTags(int id, StandingOrder standingOrder) throws Exception {
+        this.delete("standingOrders_tags", "standingOrder=" + id);
+        for(String strTag : standingOrder.tags.get().split(",")) {
+            if(!strTag.trim().isEmpty()) {
+                Tag tag = new Tag();
+                tag.title.set(strTag.trim());
+                int tagId = this.insertOrUpdateTag(tag);
+                Statement stmt = this.connection.createStatement();
+                stmt.execute(String.format("INSERT INTO standingOrders_tags(standingOrder, tag) VALUES(%s, %s)", id, tagId));
+                stmt.close();
+            }
+        }
+    }
+
+    public List<StandingOrder> getStandingOrders(String where) throws Exception {
+        List<StandingOrder> standingOrders = new LinkedList<>();
+        ResultSet resultSet = this.getQuery(StandingOrder.class, where);
+        while (resultSet.next()) {
+            StandingOrder standingOrder = new StandingOrder();
+            standingOrder.ID.set(resultSet.getInt("ID"));
+            standingOrder.title.set(resultSet.getString("title"));
+            String dt = resultSet.getString("start").trim();
+            if(!dt.isEmpty()) {
+                standingOrder.start.set(Converter.convertStringToDate(dt));
+            }
+            standingOrder.days.set(resultSet.getInt("days"));
+            standingOrder.months.set(resultSet.getInt("months"));
+            this.getForeignFields(standingOrder, resultSet);
+            standingOrder.amount.set(resultSet.getDouble("amount"));
+            List<String> tags = new LinkedList<>();
+            for(Tag tag : this.getTags(standingOrder.ID.get())) {
+                tags.add(tag.title.get());
+            }
+            standingOrder.tags.set(StringUtils.join(tags, ", "));
+            standingOrders.add(standingOrder);
+        }
+        this.closeStatement(resultSet);
+        return standingOrders;
+    }
+
+    private List<Tag> getTags(int id) throws Exception {
+        List<String> ids = new LinkedList<>();
+
+        Statement stmt = this.connection.createStatement();
+        ResultSet resultSet = stmt.executeQuery("SELECT tag FROM standingOrders_tags WHERE standingOrder=" + id);
+        while (resultSet.next()) {
+            ids.add(String.valueOf(resultSet.getInt("tag")));
+        }
+        resultSet.close();
+        stmt.close();
+
+        return this.getTags("id IN(" + StringUtils.join(ids, ", ") + ")");
+    }
+
+    private void setForeignFields(PreparedStatement preparedStatement, Category category, BankDetail bankDetail, Account account) throws Exception {
+        if(category!=null) {
+            preparedStatement.setInt(6, this.insertOrUpdateCategory(category));
+        } else {
+            preparedStatement.setNull(6, Types.INTEGER);
+        }
+        if(bankDetail!=null) {
+            preparedStatement.setInt(7, this.insertOrUpdateBankDetails(bankDetail));
+        } else {
+            preparedStatement.setNull(7, Types.INTEGER);
+        }
+        preparedStatement.setInt(8, account.ID.get());
+    }
+
+    private void getForeignFields(StandingOrder standingOrder, ResultSet resultSet) throws Exception {
+        int category = resultSet.getInt("category");
+        if(category!=0) {
+            standingOrder.category.set(this.getCategories("ID=" + category).get(0));
+        }
+        int bankDetail = resultSet.getInt("bankDetail");
+        if(bankDetail!=0) {
+            standingOrder.bankDetail.set(this.getBankDetails("ID=" + bankDetail).get(0));
+        }
+    }
+
+    private void getForeignFields(Transaction transaction, ResultSet resultSet) throws Exception {
+        int bankDetail = resultSet.getInt("bankDetail");
+        if(bankDetail!=0) {
+            transaction.bankDetail.set(this.getBankDetails("ID=" + bankDetail).get(0));
+        }
+        int category = resultSet.getInt("category");
+        if(category!=0) {
+            transaction.category.set(this.getCategories("ID=" + category).get(0));
+        }
+    }
+
     public void delete(DatabaseObject databaseObject) throws Exception {
         this.executeUpdate(String.format("DELETE FROM %s WHERE ID=%s", databaseObject.getTable(), databaseObject.getID()));
+    }
+
+    public void delete(String table, String where) throws Exception {
+        this.executeUpdate(String.format("DELETE FROM %s WHERE %s", table, where));
     }
 
     private ResultSet getQuery(Class<? extends DatabaseObject> cls, String where) throws Exception {

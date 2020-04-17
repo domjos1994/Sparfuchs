@@ -42,14 +42,43 @@ CREATE TABLE IF NOT EXISTS accounts(
     foreign key(person) references persons(ID) on delete cascade on update cascade
 );
 
+CREATE TABLE IF NOT EXISTS standingOrders(
+    ID integer primary key autoincrement,
+    title varchar(255) not null,
+    start DATE NOT NULL,
+    days integer default 0,
+    months integer default 0,
+    amount double default 0.0,
+    category integer default 0,
+    bankDetail integer default 0,
+    account integer NOT NULL,
+    timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
+    foreign key(category) references categories(ID) on delete cascade on update cascade,
+    foreign key(bankDetail) references bankDetails(ID) on delete cascade on update cascade,
+    foreign key(account) references accounts(ID) on delete cascade on update cascade
+);
+
+CREATE TABLE IF NOT EXISTS standingOrders_tags(
+    ID integer primary key autoincrement,
+    standingOrder integer not null,
+    tag integer not null,
+    timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
+    foreign key(standingOrder) references standingOrders(ID) on delete cascade on update cascade,
+    foreign key(tag) references tags(ID) on delete cascade on update cascade
+);
+
 CREATE TABLE IF NOT EXISTS transactions(
     ID integer primary key autoincrement,
     title varchar(255) not null,
     description text,
     value double not null,
+    'date' DATE NOT NULL,
+    system boolean DEFAULT false,
+    category integer default 0,
     bankDetail integer default 0,
     account integer not null,
     timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
+    foreign key(category) references categories(ID) on delete cascade on update cascade,
     foreign key(bankDetail) references bankDetails(ID) on delete cascade on update cascade,
     foreign key(account) references accounts(ID) on delete cascade on update cascade
 );

@@ -6,6 +6,9 @@ import javafx.scene.image.Image;
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 public class Converter {
 
@@ -16,5 +19,15 @@ public class Converter {
         byte[] res  = s.toByteArray();
         s.close();
         return res;
+    }
+
+    public static String convertDateToString(Date dt) {
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
+        return simpleDateFormat.format(dt);
+    }
+
+    public static Date convertStringToDate(String dt) throws ParseException {
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
+        return simpleDateFormat.parse(dt);
     }
 }

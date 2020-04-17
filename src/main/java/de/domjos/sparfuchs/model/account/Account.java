@@ -12,6 +12,7 @@ public class Account extends BaseDescriptionObject implements DatabaseObject {
     public ObjectProperty<BankDetail> bankDetail;
     public BooleanProperty isCash;
     public ListProperty<Transaction> transactions;
+    public ListProperty<StandingOrder> standingOrders;
     public DoubleProperty startAmount;
     public DoubleProperty endAmount;
 
@@ -21,6 +22,7 @@ public class Account extends BaseDescriptionObject implements DatabaseObject {
         this.bankDetail = new SimpleObjectProperty<>(new BankDetail());
         this.isCash = new SimpleBooleanProperty(true);
         this.transactions = new SimpleListProperty<>(FXCollections.observableList(new LinkedList<>()));
+        this.standingOrders = new SimpleListProperty<>(FXCollections.observableList(new LinkedList<>()));
         this.transactions.addListener((ListChangeListener<Transaction>) change -> {
             double start = this.startAmount.get();
             start += this.transactions.stream().mapToDouble(transaction -> transaction.amount.get()).sum();
@@ -28,10 +30,6 @@ public class Account extends BaseDescriptionObject implements DatabaseObject {
         });
         this.startAmount = new SimpleDoubleProperty(0.0);
         this.endAmount = new SimpleDoubleProperty(0.0);
-    }
-
-    public double getEndAmount() {
-        return this.endAmount.get();
     }
 
     @Override

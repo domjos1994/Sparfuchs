@@ -1,7 +1,7 @@
 package de.domjos.sparfuchs.controller;
 
 import de.domjos.sparfuchs.Main;
-import de.domjos.sparfuchs.model.controls.ParentController;
+import de.domjos.sparfuchs.custom.ParentController;
 import de.domjos.sparfuchs.model.person.Person;
 import de.domjos.sparfuchs.utils.general.Dialogs;
 import javafx.fxml.FXML;
@@ -32,6 +32,10 @@ public class PersonController extends ParentController {
         this.cmdPersonSave.setOnAction(event -> {
             try {
                 this.mainController.personProperty.get().ID.set(Main.GLOBALS.getDatabase().insertOrUpdatePerson(this.mainController.personProperty.get()));
+                if(this.mainController.tblMainPersons.getSelectionModel().isEmpty()) {
+                    this.mainController.tblMainPersons.getItems().add(0, this.mainController.personProperty.get());
+                    this.mainController.tblMainPersons.getSelectionModel().select(0);
+                }
                 Dialogs.printNotification(Alert.AlertType.INFORMATION, resources.getString("msg.saved"), resources.getString("msg.saved.content"), null);
             } catch (Exception ex) {
                 Dialogs.printException(ex, Main.GLOBALS.isDebug(), null);
@@ -72,17 +76,22 @@ public class PersonController extends ParentController {
         });
     }
 
+    @Override
     public void init() {
         // init bindings
         this.mainController.personProperty.addListener((observableValue, person, t1) -> {
-            this.txtPersonFirstName.textProperty().unbindBidirectional(person.firstName);
-            this.txtPersonFirstName.textProperty().bindBidirectional(t1.firstName);
-            this.txtPersonLastName.textProperty().unbindBidirectional(person.lastName);
-            this.txtPersonLastName.textProperty().bindBidirectional(t1.lastName);
-            this.dpPersonBirthDate.valueProperty().unbindBidirectional(person.birthDate);
-            this.dpPersonBirthDate.valueProperty().bindBidirectional(t1.birthDate);
-            this.ivPersonImage.imageProperty().unbindBidirectional(person.profileImage);
-            this.ivPersonImage.imageProperty().bindBidirectional(t1.profileImage);
+            if(person != null) {
+                this.txtPersonFirstName.textProperty().unbindBidirectional(person.firstName);
+                this.txtPersonLastName.textProperty().unbindBidirectional(person.lastName);
+                this.dpPersonBirthDate.valueProperty().unbindBidirectional(person.birthDate);
+                this.ivPersonImage.imageProperty().unbindBidirectional(person.profileImage);
+            }
+            if(t1 != null) {
+                this.txtPersonFirstName.textProperty().bindBidirectional(t1.firstName);
+                this.txtPersonLastName.textProperty().bindBidirectional(t1.lastName);
+                this.dpPersonBirthDate.valueProperty().bindBidirectional(t1.birthDate);
+                this.ivPersonImage.imageProperty().bindBidirectional(t1.profileImage);
+            }
         });
     }
 }

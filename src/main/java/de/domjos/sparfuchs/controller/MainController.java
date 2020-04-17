@@ -2,8 +2,9 @@ package de.domjos.sparfuchs.controller;
 
 import de.domjos.sparfuchs.Main;
 import de.domjos.sparfuchs.model.account.Account;
+import de.domjos.sparfuchs.model.account.StandingOrder;
 import de.domjos.sparfuchs.model.account.Transaction;
-import de.domjos.sparfuchs.model.controls.ParentController;
+import de.domjos.sparfuchs.custom.ParentController;
 import de.domjos.sparfuchs.model.person.Person;
 
 import de.domjos.sparfuchs.utils.general.Dialogs;
@@ -13,23 +14,23 @@ import javafx.beans.property.SimpleObjectProperty;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 
-import java.util.Random;
-import java.util.ResourceBundle;
-import java.util.UUID;
+import java.time.LocalDate;
+import java.util.*;
 
 public class MainController extends ParentController {
 
     private @FXML PersonController personController;
     private @FXML AccountController accountController;
     private @FXML TransactionController transactionController;
+    private @FXML TagsController tagsController;
 
     public @FXML TableView<Person> tblMainPersons;
     public @FXML TableView<Account> tblMainAccounts;
 
     private @FXML TabPane tbpMain;
-    private @FXML Tab tbMainPersons, tbMainAccounts, tbMainTransactions;
+    private @FXML Tab tbMainPersons, tbMainAccounts, tbMainTransactions, tbMainTags;
 
-    private @FXML Button cmdMainAccount, cmdMainTransaction, cmdMainPerson;
+    private @FXML Button cmdMainAccount, cmdMainTransaction, cmdMainPerson, cmdMainRefresh, cmdMainTags;
 
     public @FXML Label lblMainMessages;
     public @FXML ProgressBar pbMainProgress;
@@ -40,6 +41,23 @@ public class MainController extends ParentController {
     @Override
     public void initialize(ResourceBundle resourceBundle) {
         this.init();
+        this.updateData();
+
+        this.cmdMainRefresh.setOnAction(event -> {
+            try {
+                this.updateData();
+
+                int person = this.tblMainPersons.getSelectionModel().getSelectedIndex();
+                int account = this.tblMainAccounts.getSelectionModel().getSelectedIndex();
+
+                this.tblMainPersons.getItems().clear();
+                this.tblMainPersons.getItems().addAll(Main.GLOBALS.getDatabase().getPersons(""));
+                this.tblMainPersons.getSelectionModel().select(person);
+                this.tblMainAccounts.getSelectionModel().select(account);
+            } catch (Exception ex) {
+                Dialogs.printException(ex, Main.GLOBALS.isDebug(), null);
+            }
+        });
 
         this.cmdMainAccount.setOnAction(event -> {
             if(this.tblMainPersons.getSelectionModel().isEmpty()) {
@@ -82,6 +100,10 @@ public class MainController extends ParentController {
 
             this.tbpMain.getSelectionModel().select(this.tbMainTransactions);
         });
+        this.cmdMainTags.setOnAction(event -> {
+            this.tagsController.init();
+            this.tbpMain.getSelectionModel().select(this.tbMainTags);
+        });
 
         this.tblMainAccounts.getSelectionModel().selectedItemProperty().addListener((observableValue, account, t1) -> {
             if(!this.tblMainAccounts.getSelectionModel().isEmpty()) {
@@ -105,14 +127,17 @@ public class MainController extends ParentController {
         });
     }
 
-    private void init() {
+    @Override
+    public void init() {
         // init controllers
         this.personController.init(this);
         this.accountController.init(this);
         this.transactionController.init(this);
+        this.tagsController.init(this);
         this.personController.init();
         this.accountController.init();
         this.transactionController.init();
+        this.tagsController.init();
 
         // init default-tab
         this.tbpMain.getSelectionModel().select(this.tbMainTransactions);
@@ -179,6 +204,59 @@ public class MainController extends ParentController {
                 person.accounts.add(account);
             }
             this.tblMainPersons.getItems().add(person);
+        }
+    }
+
+    void updateData() {
+        try {
+            LocalDate localDate = LocalDate.now();
+            for(Account account : Main.GLOBALS.getDatabase().getAccounts("")) {
+                for(StandingOrder standingOrder : account.standingOrders) {
+                    Calendar calendar = GregorianCalendar.getInstance();
+                    calendar.setTime(standingOrder.start.get());
+                    LocalDate start = LocalDate.of(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH));
+
+                    if(start.isBefore(localDate)) {
+                        Calendar lastTransacted = GregorianCalendar.getInstance();
+                        lastTransacted.setTime(standingOrder.start.get());
+                        for(Transaction transaction : account.transactions) {
+                            if(transaction.system.get() && transaction.title.get().equals(standingOrder.title.get())) {
+                                Calendar currentTransactionDate = GregorianCalendar.getInstance();
+                                currentTransactionDate.setTime(transaction.date.get());
+
+                                if(lastTransacted.before(currentTransactionDate)) {
+                                    lastTransacted.setTime(transaction.date.get());
+                                }
+                            }
+                        }
+
+                        while(lastTransacted.before(GregorianCalendar.getInstance())) {
+                            boolean hasToAddTransaction = false;
+                            if(standingOrder.months.get() == 0 ) {
+                                lastTransacted.add(Calendar.DAY_OF_YEAR, standingOrder.days.get());
+                            } else {
+                                lastTransacted.add(Calendar.MONTH, standingOrder.months.get());
+                                lastTransacted.set(Calendar.DAY_OF_MONTH, standingOrder.days.get());
+                            }
+
+                            if(lastTransacted.before(GregorianCalendar.getInstance())) {
+                                hasToAddTransaction = true;
+                            }
+                            if(hasToAddTransaction) {
+                                Transaction transaction = new Transaction();
+                                transaction.title.setValue(standingOrder.title.get());
+                                transaction.system.set(true);
+                                transaction.date.set(lastTransacted.getTime());
+                                transaction.bankDetail.set(standingOrder.bankDetail.get());
+                                transaction.amount.set(standingOrder.amount.getValue());
+                                Main.GLOBALS.getDatabase().insertOrUpdateTransaction(transaction, account);
+                            }
+                        }
+                    }
+                }
+            }
+        } catch (Exception ex) {
+            Dialogs.printException(ex, Main.GLOBALS.isDebug(), null);
         }
     }
 }

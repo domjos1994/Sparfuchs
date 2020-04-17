@@ -1,4 +1,4 @@
-package de.domjos.sparfuchs.model.controls;
+package de.domjos.sparfuchs.custom;
 
 import de.domjos.sparfuchs.controller.MainController;
 import de.domjos.sparfuchs.utils.general.Dialogs;
@@ -25,6 +25,8 @@ public abstract class ParentController implements Initializable {
     public void init(MainController mainController) {
         this.mainController = mainController;
     }
+
+    public abstract void init();
 
     protected void initContextHelp() {
 

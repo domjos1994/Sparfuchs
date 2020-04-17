@@ -1,17 +1,23 @@
 package de.domjos.sparfuchs.controller;
 
 import de.domjos.sparfuchs.Main;
+import de.domjos.sparfuchs.custom.CategoryStringConverter;
 import de.domjos.sparfuchs.model.account.Transaction;
-import de.domjos.sparfuchs.model.controls.ParentController;
+import de.domjos.sparfuchs.custom.ParentController;
+import de.domjos.sparfuchs.model.general.Category;
 import de.domjos.sparfuchs.utils.general.Dialogs;
 import de.domjos.sparfuchs.utils.helper.Helper;
-import javafx.beans.property.ObjectProperty;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
 import javafx.scene.control.*;
+import javafx.scene.control.cell.ComboBoxTableCell;
 import javafx.scene.control.cell.TextFieldTableCell;
+import javafx.util.converter.DateStringConverter;
 import javafx.util.converter.DoubleStringConverter;
 
+import java.util.Date;
 import java.util.ResourceBundle;
 
 public class TransactionController extends ParentController {
@@ -56,7 +62,7 @@ public class TransactionController extends ParentController {
         });
     }
 
-
+    @Override
     public void init() {
         // init table-view
         this.tblTransactions.getColumns().clear();
@@ -72,6 +78,12 @@ public class TransactionController extends ParentController {
         value.setEditable(true);
         value.setCellValueFactory(val -> val.getValue().amount.asObject());
         this.tblTransactions.getColumns().add(value);
+        TableColumn<Transaction, Date> date = new TableColumn<>("Date");
+        date.setText(this.resources.getString("transactions.date"));
+        date.setCellFactory(TextFieldTableCell.forTableColumn(new DateStringConverter()));
+        date.setEditable(true);
+        date.setCellValueFactory(val -> val.getValue().date);
+        this.tblTransactions.getColumns().add(date);
         TableColumn<Transaction, String> bic = new TableColumn<>("BIC");
         bic.setText("BIC");
         bic.setCellFactory(TextFieldTableCell.forTableColumn());
@@ -87,25 +99,37 @@ public class TransactionController extends ParentController {
             return personStringCellDataFeatures.getValue().bankDetail.get().iBan;
         });
         this.tblTransactions.getColumns().add(iban);
+        try {
+            ObservableList<Category> categories = FXCollections.observableList(Main.GLOBALS.getDatabase().getCategories(""));
+            TableColumn<Transaction, Category> category = new TableColumn<>("Category");
+            category.setText(this.resources.getString("category"));
+            category.setCellFactory(val -> new ComboBoxTableCell<>(new CategoryStringConverter(), categories));
+            category.setEditable(true);
+            category.setCellValueFactory(val -> val.getValue().category);
+            this.tblTransactions.getColumns().add(category);
+        } catch (Exception ex) {
+            Dialogs.printException(ex, Main.GLOBALS.isDebug(), null);
+        }
         Helper.fitColumnsToWidth(this.tblTransactions);
 
         // init bindings
         this.tblTransactions.itemsProperty().bind(this.mainController.accountProperty.getValue().transactions);
     }
 
+    @SuppressWarnings("unchecked")
     private void fillWithColor() {
-        int i = 0;
         for (Node n: this.tblTransactions.lookupAll("TableRow")) {
             if (n instanceof TableRow) {
                 TableRow<Transaction> row = (TableRow<Transaction>) n;
-                if (this.tblTransactions.getItems().get(i).amount.get()>0) {
-                    row.setStyle("-fx-background-color: green;");
-                } else {
-                    row.setStyle("-fx-background-color: red;");
-                }
-                i++;
-                if (i == this.tblTransactions.getItems().size()) {
-                    break;
+                if(row.itemProperty() != null) {
+                    if(row.itemProperty().get() != null) {
+                        row.setEditable(!row.itemProperty().get().system.get());
+                        if (row.itemProperty().get().amount.get()>0) {
+                            row.setStyle("-fx-background-color: green;");
+                        } else {
+                            row.setStyle("-fx-background-color: red;");
+                        }
+                    }
                 }
             }
         }
