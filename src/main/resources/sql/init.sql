@@ -1,18 +1,18 @@
 CREATE TABLE IF NOT EXISTS categories(
-    ID integer primary key auto_increment,
+    ID integer primary key autoincrement,
     title varchar(255) not null,
     description text,
     timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE IF NOT EXISTS tags(
-    ID integer primary key auto_increment,
+    ID integer primary key autoincrement,
     title varchar(255) not null,
     timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE IF NOT EXISTS bankDetails(
-    ID integer primary key auto_increment,
+    ID integer primary key autoincrement,
     title varchar(255) not null,
     bic varchar(10) not null,
     iban varchar(20) not null,
@@ -20,7 +20,7 @@ CREATE TABLE IF NOT EXISTS bankDetails(
 );
 
 CREATE TABLE IF NOT EXISTS persons(
-    ID integer primary key auto_increment,
+    ID integer primary key autoincrement,
     title varchar(255) default '',
     firstName varchar(50) not null,
     lastName varchar(50) not null,
@@ -30,7 +30,7 @@ CREATE TABLE IF NOT EXISTS persons(
 );
 
 CREATE TABLE IF NOT EXISTS accounts(
-    ID integer primary key auto_increment,
+    ID integer primary key autoincrement,
     title varchar(255) not null,
     description text,
     isCash boolean default false,
@@ -43,7 +43,7 @@ CREATE TABLE IF NOT EXISTS accounts(
 );
 
 CREATE TABLE IF NOT EXISTS standingOrders(
-    ID integer primary key auto_increment,
+    ID integer primary key autoincrement,
     title varchar(255) not null,
     start DATE NOT NULL,
     days integer default 0,
@@ -59,7 +59,7 @@ CREATE TABLE IF NOT EXISTS standingOrders(
 );
 
 CREATE TABLE IF NOT EXISTS standingOrders_tags(
-    ID integer primary key auto_increment,
+    ID integer primary key autoincrement,
     standingOrder integer not null,
     tag integer not null,
     timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
@@ -68,7 +68,7 @@ CREATE TABLE IF NOT EXISTS standingOrders_tags(
 );
 
 CREATE TABLE IF NOT EXISTS transactions(
-    ID integer primary key auto_increment,
+    ID integer primary key autoincrement,
     title varchar(255) not null,
     description text,
     value double not null,

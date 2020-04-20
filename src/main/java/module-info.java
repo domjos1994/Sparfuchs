@@ -9,7 +9,7 @@ module Sparfuchs {
     requires javafx.swing;
 
     requires org.controlsfx.controls;
-    requires com.h2database;
+    requires sqlite.jdbc;
 
     opens de.domjos.sparfuchs.controller to javafx.controls, javafx.fxml, javafx.base;
     opens de.domjos.sparfuchs to javafx.controls, javafx.fxml;

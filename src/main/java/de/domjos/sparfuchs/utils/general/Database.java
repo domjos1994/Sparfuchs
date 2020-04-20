@@ -24,10 +24,10 @@ public final class Database {
 
     public Database() throws Exception {
         // init driver
-        Class.forName("org.h2.Driver");
+        Class.forName("org.sqlite.JDBC");
 
         // get connection
-        this.connection = DriverManager.getConnection("jdbc:h2:" + Helper.initializePath() + "/sparfuchs.db");
+        this.connection = DriverManager.getConnection("jdbc:sqlite:" + Helper.initializePath() + "/sparfuchs.db");
     }
 
     public void init() throws Exception {
