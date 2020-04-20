@@ -8,13 +8,10 @@ import de.domjos.sparfuchs.model.general.Category;
 import de.domjos.sparfuchs.model.general.DatabaseObject;
 import de.domjos.sparfuchs.model.general.Tag;
 import de.domjos.sparfuchs.model.person.Person;
+import de.domjos.sparfuchs.utils.helper.Helper;
 import javafx.scene.image.Image;
-import org.sqlite.util.StringUtils;
 
-import java.io.BufferedReader;
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.FileReader;
+import java.io.*;
 import java.sql.*;
 import java.util.Arrays;
 import java.util.Collections;
@@ -27,15 +24,14 @@ public final class Database {
 
     public Database() throws Exception {
         // init driver
-        Class.forName("org.sqlite.JDBC");
+        Class.forName("org.h2.Driver");
 
         // get connection
-        this.connection = DriverManager.getConnection("jdbc:sqlite:sparfuchs.db");
+        this.connection = DriverManager.getConnection("jdbc:h2:" + Helper.initializePath() + "/sparfuchs.db");
     }
 
     public void init() throws Exception {
-        File sqlFile = new File(Database.class.getResource("/sql/init.sql").getFile());
-        BufferedReader bufferedReader = new BufferedReader(new FileReader(sqlFile));
+        BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(Database.class.getResourceAsStream("/sql/init.sql")));
 
         String line;
         StringBuilder query = new StringBuilder();
@@ -284,7 +280,7 @@ public final class Database {
             for(Tag tag : this.getTags(standingOrder.ID.get())) {
                 tags.add(tag.title.get());
             }
-            standingOrder.tags.set(StringUtils.join(tags, ", "));
+            standingOrder.tags.set(this.join(tags, ", "));
             standingOrders.add(standingOrder);
         }
         this.closeStatement(resultSet);
@@ -302,7 +298,7 @@ public final class Database {
         resultSet.close();
         stmt.close();
 
-        return this.getTags("id IN(" + StringUtils.join(ids, ", ") + ")");
+        return this.getTags("id IN(" + this.join(ids, ", ") + ")");
     }
 
     private void setForeignFields(PreparedStatement preparedStatement, Category category, BankDetail bankDetail, Account account) throws Exception {
@@ -378,16 +374,16 @@ public final class Database {
 
     private PreparedStatement getPreparedStatement(List<String> columns, DatabaseObject databaseObject) throws Exception {
         if(databaseObject.getID()==0) {
-            String columnString = StringUtils.join(columns, ",");
+            String columnString = this.join(columns, ",");
             List<String> values = new LinkedList<>();
             columns.forEach(column -> values.add("?"));
-            String valueString = StringUtils.join(values, ",");
+            String valueString = this.join(values, ",");
             return this.connection.prepareStatement(String.format("INSERT INTO %s(%s) VALUES(%s)", databaseObject.getTable(), columnString, valueString), Statement.RETURN_GENERATED_KEYS);
         } else {
             for(int i = 0; i<=columns.size() - 1; i++) {
                 columns.set(i, columns.get(i) + "=?");
             }
-            String columnString = StringUtils.join(columns, ",");
+            String columnString = this.join(columns, ",");
             return this.connection.prepareStatement(String.format("UPDATE %S SET %S WHERE ID=%s", databaseObject.getTable(), columnString, databaseObject.getID()));
         }
     }
@@ -396,5 +392,13 @@ public final class Database {
         Statement statement = this.connection.createStatement();
         statement.executeUpdate(query);
         statement.close();
+    }
+
+    private String join(List<String> items, String separator) {
+        StringBuilder result = new StringBuilder();
+        for(String item : items) {
+            result.append(item).append(separator);
+        }
+        return (result.toString() + "))").replace(separator + "))", "");
     }
 }
