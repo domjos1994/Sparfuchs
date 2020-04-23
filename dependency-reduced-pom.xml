@@ -155,12 +155,12 @@
     </dependency>
   </dependencies>
   <properties>
-    <java.version>14</java.version>
+    <java.version>11</java.version>
     <maven.compiler.source>${java.version}</maven.compiler.source>
     <application.out>build</application.out>
     <cfx.version>11.0.1</cfx.version>
     <application.author>Dominic Joas</application.author>
-    <jfx.version>14</jfx.version>
+    <jfx.version>11</jfx.version>
     <maven.compiler.target>${java.version}</maven.compiler.target>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <log4j.version>2.12.1</log4j.version>
