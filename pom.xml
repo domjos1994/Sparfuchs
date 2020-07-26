@@ -23,8 +23,8 @@
         <application.mainClass.application>de.domjos.sparfuchs.Main</application.mainClass.application>
 
         <!-- Dependency-Versions -->
-        <java.version>14</java.version>
-        <jfx.version>14</jfx.version>
+        <java.version>11</java.version>
+        <jfx.version>11</jfx.version>
         <cfx.version>11.0.1</cfx.version>
 
         <sqlite.version>3.28.0</sqlite.version>
@@ -87,22 +87,22 @@
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-controls</artifactId>
-            <version>13</version>
+            <version>${jfx.version}</version>
         </dependency>
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-fxml</artifactId>
-            <version>13</version>
+            <version>${jfx.version}</version>
         </dependency>
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-graphics</artifactId>
-            <version>13</version>
+            <version>${jfx.version}</version>
         </dependency>
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-swing</artifactId>
-            <version>13</version>
+            <version>${jfx.version}</version>
         </dependency>
 
         <!-- extended components -->
